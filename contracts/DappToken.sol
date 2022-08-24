@@ -12,5 +12,3 @@ contract DappToken is ERC20 {
     _mint(to, amount);
   }
 }
-
-//12:56:8
