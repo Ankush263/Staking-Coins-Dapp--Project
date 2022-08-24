@@ -9,11 +9,11 @@ contract Staking {
   struct Position {
     uint positionId;
     address walletAddress;
-    uint createDate;
-    uint unlockDate;
+    uint createTime;
+    uint unlockTime;
     uint percentInterest;
-    uint weiStaked;
-    uint weiInterest;
+    uint tokenStaked;
+    uint tokenInterest;
     bool open;
   }
 
@@ -27,6 +27,75 @@ contract Staking {
 
   constructor() payable {
     owner = msg.sender;
+    currentPositionId = 0;
+    tiers[1] = 700;    // 7% APY
+    tiers[6] = 1000;   // 10% APY
+    tiers[12] = 1200;    // 12% APY
+    lockPeriods.push(1);
+    lockPeriods.push(6);
+    lockPeriods.push(12);
+  }
+
+  function stakeTokens(uint numHours) external payable {
     
+    require(tiers[numHours] > 0, "Mapping not found");
+
+    positions[currentPositionId] = Position(
+      currentPositionId,    // positionId
+      msg.sender,   // walletAddress
+      block.timestamp,    // createTime
+      block.timestamp + (numHours * 1 hours),   // unlockTime
+      tiers[numHours],    // percentInterest
+      msg.value,    // tokenStake
+      calculateInterest(tiers[numHours], msg.value),    // tokenInterest
+      true    // Open
+    );
+
+    positionIdByAddress[msg.sender].push(currentPositionId);
+    currentPositionId++;
+
+  }
+
+  function calculateInterest(uint basisPoints, uint tokenAmount) private pure returns(uint) {
+    return basisPoints * (tokenAmount / 10000);
+  }
+
+  function modifyLockPeriods(uint numHours, uint basisPoints) external {
+    require(owner == msg.sender, "Only owner have an access to modify staking period");
+    tiers[numHours] = basisPoints;
+    lockPeriods.push(numHours);
+  }
+
+  function getLockPeriods() external view returns(uint[] memory) {
+    return lockPeriods;
+  }
+
+  function getInterestRate(uint numHours) external view returns(uint) {
+    return tiers[numHours];
+  }
+
+  function getPositionById(uint positionId) external view returns (Position memory) {
+    return positions[positionId];
+  }
+
+  function getPositionIdsForAddress(address walletAddress) external view returns(uint[] memory) {
+    return positionIdByAddress[walletAddress];
+  }
+
+  function changeUnlockTime(uint positionId, uint newUnlockTime) external {
+    require(owner == msg.sender, "Only owner can modify the unlock time");
+    positions[positionId].unlockTime = newUnlockTime;
+  }
+
+  function closePosition(uint positionId) external {
+    require(positions[positionId].walletAddress == msg.sender, "Only position creator may close the position");
+    require(positions[positionId].open == true, "Position is closed");
+    positions[positionId].open = false;
+    if(block.timestamp > positions[positionId].unlockTime) {
+      uint amount = positions[positionId].tokenStaked + positions[positionId].tokenInterest;
+      payable(msg.sender).transfer(amount);
+    } else {
+      payable(msg.sender).transfer(positions[positionId].tokenStaked);
+    }
   }
 }
