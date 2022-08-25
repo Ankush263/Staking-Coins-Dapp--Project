@@ -10,6 +10,7 @@ function App() {
   const [logedIn, isLogedIn] = useState(false)
   const [hours, setHours] = useState(0)
   const [tokenAmount, setTokenAmount] = useState(0)
+  const [positionId, setPositionId] = useState(0)
 
   const dappTokenDeployAddress = "0x0165878A594ca255338adfa4d48449f69242Eb8F"
   const stakingDeployAddress = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
@@ -81,6 +82,15 @@ function App() {
       const stakeToekn = await contract.stakeTokens(hours, { value: tokenAmount })
     } catch (error) {
       console.log("Stake Error: ", error)
+    }
+  }
+
+  const setId = async () => {
+    const contract = await new ethers.Contract(stakingDeployAddress, stakeAbi, stakeSigner)
+    try {
+      
+    } catch (error) {
+      console.log("setId Error: ", error)
     }
   }
 
