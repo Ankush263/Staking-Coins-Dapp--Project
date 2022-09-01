@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import DAPPTOKEN from './artifacts/contracts/DappToken.sol/DappToken.json';
 import STAKING from './artifacts/contracts/Staking.sol/Staking.json';
 import { ethers } from 'ethers';
+import Model from "./Model";
 
 function App() {
 
@@ -11,9 +12,10 @@ function App() {
   const [hours, setHours] = useState(0)
   const [tokenAmount, setTokenAmount] = useState(0)
   const [positionId, setPositionId] = useState(0)
+  const [data, setData] = useState([])
 
-  const dappTokenDeployAddress = "0x0165878A594ca255338adfa4d48449f69242Eb8F"
-  const stakingDeployAddress = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853"
+  const dappTokenDeployAddress = "0x36779Ff417ebB16C309E75C663f91A2eA0227f83"
+  const stakingDeployAddress = "0xFC0ABBa48e78eC8eDc63C0037523aa478309C155"
 
   const stakeAbi = STAKING.abi
   const dappAbi = DAPPTOKEN.abi
@@ -38,33 +40,49 @@ function App() {
     }
   }
 
-  // useEffect(() => {
-  //   const Asset = async () => {
-  //     const tokenSymbol = "DANK"    // Token Symbol
-  //     const tokenDecimals = 5 
-  //     try {
-  //       const wasAdded = window.ethereum.request({
-  //         method: 'wallet_watchAsset',
-  //         params: {
-  //           type: 'ERC20', 
-  //           options: {
-  //             address: dappTokenDeployAddress, 
-  //             symbol: tokenSymbol, 
-  //             decimals: tokenDecimals,
-  //           },
-  //         },
-  //       });  
-  //       if (wasAdded) {
-  //         console.log('Thanks for your interest!');
-  //       } else {
-  //         console.log('Your loss!');
-  //       }
-  //     } catch (error) {
-  //       console.log(error)
-  //     }
-  //   }
-  //   Asset()
-  // }, [logedIn])
+  useEffect(() => {
+    const Asset = async () => {
+      const tokenSymbol = "STK"    // Token Symbol
+      const tokenDecimals = 0.1
+      try {
+        const wasAdded = window.ethereum.request({
+          method: 'wallet_watchAsset',
+          params: {
+            type: 'ERC20', 
+            options: {
+              address: dappTokenDeployAddress, 
+              symbol: tokenSymbol, 
+              decimals: tokenDecimals,
+            },
+          },
+        });  
+        if (wasAdded) {
+          console.log('Thanks for your interest!');
+        } else {
+          console.log('Your loss!');
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    }
+    Asset()
+  }, [logedIn])
+
+  const getBalance = async () => {
+    const contract = await new ethers.Contract(dappTokenDeployAddress, dappAbi, dappTokenSigner)
+
+    try {
+      const balance = await contract.balanceOf(await dappTokenSigner.getAddress())
+      // console.log(Number(balance))
+      const bal = (Number(balance)).toString()
+      console.log(bal)
+      console.log(ethers.utils.formatUnits( balance ))
+      // console.log(ethers.utils.formatUnits( balance, "wei" ))
+      // console.log(Number(ethers.utils.parseUnits( bal, 0 )))
+    } catch (error) {
+      console.log("Token Balance Error: ", error)
+    }
+  }
 
   const tokenFaucet = async () => {
     const contract = await new ethers.Contract(dappTokenDeployAddress, dappAbi, dappTokenSigner)
@@ -79,27 +97,65 @@ function App() {
   const stake = async () => {
     const contract = await new ethers.Contract(stakingDeployAddress, stakeAbi, stakeSigner)
     try {
-      const stakeToekn = await contract.stakeTokens(hours, { value: tokenAmount })
+      const stakeToekn = await contract.stakeTokens(hours, { value: tokenAmount * 10**14 })
     } catch (error) {
       console.log("Stake Error: ", error)
     }
   }
 
-  const setId = async () => {
+
+  /**------------------------------------------------------------------------------------------ */
+
+  const setId = async (address) => {
     const contract = await new ethers.Contract(stakingDeployAddress, stakeAbi, stakeSigner)
     try {
-      
+      const address = await stakeSigner.getAddress()
+      let positionId = await contract.getPositionIdsForAddress(address)
+      positionId.map(eachPosition => console.log(Number(eachPosition)))
     } catch (error) {
       console.log("setId Error: ", error)
     }
   }
 
-  const unStake = async () => {
+
+  const getAllPositions = async () => {
+    const contract = await new ethers.Contract(stakingDeployAddress, stakeAbi, stakeSigner)
+
+    try {
+      const address = await stakeSigner.getAddress()
+      let positionId = await contract.getPositionIdsForAddress(address)
+      positionId.map(async eachPosition => {
+        const pos = await contract.positions(eachPosition)
+
+        let Pos = {
+          percentInterest: Number(pos.percentInterest),
+          positionId: Number(pos.positionId),
+          tokenStaked: Number(pos.tokenStaked),
+          tokenInterest: Number(pos.tokenInterest),
+          open: pos.open
+        }
+        
+        setData(prev => [...prev, Pos])
+      })
+      console.log(data)
+    } catch (error) {
+      console.log("GetAllPosition Error: ", error)
+    }
+  }
+
+  /**------------------------------------------------------------------------------------------- */
+
+
+  const withdraw = async (positionId) => {
+    
     const contract = await new ethers.Contract(stakingDeployAddress, stakeAbi, stakeSigner)
     
     try {
-      console.log(tokenAmount)
-      console.log(hours)
+      console.log("tokenAmount: ", tokenAmount)
+      console.log("hours: ", hours)
+      console.log(positionId)
+      // const address = await stakeSigner.getAddress()
+      await contract.closePosition(positionId)
     } catch (error) {
       console.log("UnStake Error: ", error)
     }
@@ -119,7 +175,25 @@ function App() {
         <input type="number" placeholder='Hours' onChange={(e) => {setHours(e.target.value)}} value={hours} />
         <input type="number" placeholder='Token Amount' onChange={(e) => {setTokenAmount(e.target.value)}} value={tokenAmount} />
         <button onClick={stake}>Stake Token</button>
-        <button onClick={unStake}>Unstake Token</button>
+        {/* <button onClick={unStake}>Unstake Token</button> */}
+        <button onClick={getBalance}>Token Balance</button>
+        <button onClick={getAllPositions}>getData</button>
+        <div className="IDS">{positionId}</div>
+        <div className="IDS">
+        {data.map(item => {
+          return (
+            <Model
+              key = {item.positionId}
+              percentInterest = {item.percentInterest}
+              positionId = {item.positionId}
+              tokenInterest = {item.tokenInterest}
+              tokenStaked = {item.tokenStaked}
+              open = {item.open}
+              withdraw = {() => withdraw(item.positionId)}
+            />
+          )
+        })}
+        </div>
       </div>
     </div>
   );
