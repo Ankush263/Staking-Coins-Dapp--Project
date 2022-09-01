@@ -44,7 +44,7 @@ contract Staking {
       currentPositionId,    // positionId
       msg.sender,   // walletAddress
       block.timestamp,    // createTime
-      block.timestamp + (numHours * 1 hours),   // unlockTime
+      block.timestamp + (numHours * 1 seconds),   // unlockTime
       tiers[numHours],    // percentInterest
       msg.value,    // tokenStake
       calculateInterest(tiers[numHours], msg.value),    // tokenInterest
