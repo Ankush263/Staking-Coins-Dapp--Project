@@ -28,12 +28,12 @@ contract Staking {
   constructor() payable {
     owner = msg.sender;
     currentPositionId = 0;
-    tiers[1] = 700;    // 7% APY
-    tiers[6] = 1000;   // 10% APY
-    tiers[12] = 1200;    // 12% APY
-    lockPeriods.push(1);
-    lockPeriods.push(6);
-    lockPeriods.push(12);
+    tiers[30] = 700;    // 7% APY
+    tiers[90] = 1000;   // 10% APY
+    tiers[180] = 1200;    // 12% APY
+    lockPeriods.push(30);
+    lockPeriods.push(90);
+    lockPeriods.push(180);
   }
 
   function stakeTokens(uint numHours) external payable {
@@ -44,7 +44,7 @@ contract Staking {
       currentPositionId,    // positionId
       msg.sender,   // walletAddress
       block.timestamp,    // createTime
-      block.timestamp + (numHours * 1 seconds),   // unlockTime
+      block.timestamp + (numHours * 1 days),   // unlockTime
       tiers[numHours],    // percentInterest
       msg.value,    // tokenStake
       calculateInterest(tiers[numHours], msg.value),    // tokenInterest
