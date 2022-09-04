@@ -1,0 +1,111 @@
+.App {
+  margin: 0;
+  padding-bottom: 10em;
+  padding-top: 1em;
+  background: #8A2387;  /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #F27121, #E94057, #8A2387);  /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #F27121, #E94057, #8A2387); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  width: 100vw;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.connect, .staking--card, .icon--status, .satcked-content {
+  position: relative;
+  width: 15rem;
+  height: 5rem;
+  background: rgba(225, 225, 225, 0.5);
+  box-shadow: rgba(24, 20, 31, 0.4) 0 2px 4px,rgba(8, 8, 8, 0.3) 0 7px 13px -3px,rgba(239, 239, 241, 0) 0 -3px 0 inset;
+  border: 1px solid rgba(225, 225, 225, 0.5);
+  border-right: 1px solid rgba(225, 225, 225, 0.2);
+  border-bottom: 1px solid rgba(225, 225, 225, 0.2);
+  border-radius: 10px;
+  z-index: 10;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+}
+
+.staking--card {
+  min-width: 45rem;
+  min-height: 15rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.time {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.icon--status {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 12rem;
+  height: 12rem;
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+.icon--about {
+  font-weight: 700;
+  font-size: 1.2em;
+}
+
+.input {
+  border-radius: 30px;
+  background: linear-gradient(to right, #f2712128, #e9405783, #8a238764);
+  color: black;
+  font-weight: 700;
+  margin-bottom: 1em;
+}
+
+.stake-money-input {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1em;
+}
+
+.icon--card {
+  color: #8a2387f9;
+}
+
+.satcked-content {
+  margin-top: 2em;
+  min-width: 45rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: fit-content;
+}
+
+.stakign--about {
+  /* border: 1px solid; */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.about {
+  font-weight: 700;
+  font-size: 1.1em;
+}
+
+.about-token {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
