@@ -1,0 +1,10 @@
+.model {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.model--item {
+  font-weight: 500;
+  font-size: 1.1rem;
+}
