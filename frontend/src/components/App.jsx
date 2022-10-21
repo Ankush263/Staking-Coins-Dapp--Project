@@ -1,7 +1,7 @@
 import '../style/App.css';
 import React, { useState, useEffect } from 'react';
-import DAPPTOKEN from '../artifacts/contracts/DappToken.sol/DappToken.json';
-import STAKING from '../artifacts/contracts/Staking.sol/Staking.json';
+import DAPPTOKEN from '../utils/DappToken.json';
+import STAKING from '../utils/Staking.json';
 import { ethers } from 'ethers';
 import Model from "./Model";
 import Button from '@mui/material/Button';
